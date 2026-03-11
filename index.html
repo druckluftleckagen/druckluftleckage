@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Leckage">
+<meta name="theme-color" content="#09090b">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>FONDIUM Leckage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+/*═══════════════════════════════════════════════════════════
+  FONDIUM LECKAGE PWA v17
+  One file · Zero dependencies · Offline ready
+  iPhone 16 (390×844 @3x) optimized
+═══════════════════════════════════════════════════════════*/
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --s0:#09090b;--s1:#111114;--s2:#18181c;--s3:#1f1f25;--s4:#27272f;--s5:#303038;
+  --t1:#f0f0f2;--t2:#a8a8b4;--t3:#6e6e7a;--t4:#46464e;
+  --accent:#E8700A;--accent-s:rgba(232,112,10,0.1);--accent-g:rgba(232,112,10,0.3);
+  --green:#22c55e;--green-s:rgba(34,197,94,0.1);
+  --red:#ef4444;--red-s:rgba(239,68,68,0.1);
+  --amber:#f59e0b;
+  --sg:#eab308;--sm:#f97316;--ss:#ef4444;
+  --r:10px;--rl:16px;--rx:24px;
+  --fd:'Outfit',sans-serif;--fb:'Manrope',sans-serif;--fm:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);--spring:cubic-bezier(.34,1.56,.64,1);
+  --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);
+}
+html{background:var(--s0);overscroll-behavior:none;}
+body{font-family:var(--fb);background:var(--s0);color:var(--t1);min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:calc(74px + var(--sb));}
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.018;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:100px;}
+::selection{background:var(--accent);color:#fff;}
+::-webkit-scrollbar{display:none;}
+
+/* ═══ SPLASH ═══ */
+#splash{position:fixed;inset:0;z-index:10000;background:var(--s0);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:20px;transition:opacity .5s var(--ease);}
+#splash.hide{opacity:0;pointer-events:none;}
+#splash img{width:120px;filter:brightness(0) invert(1);opacity:0;transform:translateY(12px);animation:sIn .6s var(--ease) .2s forwards;}
+#splash .stxt{font-family:var(--fm);font-size:9px;color:var(--t4);letter-spacing:3px;text-transform:uppercase;opacity:0;transform:translateY(8px);animation:sIn .5s var(--ease) .4s forwards;}
+#splash .sbar{width:80px;height:2px;background:var(--s4);border-radius:1px;overflow:hidden;opacity:0;animation:sIn .4s var(--ease) .5s forwards;}
+#splash .sbar div{height:100%;width:0;background:var(--accent);animation:sLoad .8s var(--ease) .6s forwards;}
+@keyframes sIn{to{opacity:1;transform:translateY(0)}}
+@keyframes sLoad{to{width:100%}}
+
+/* ═══ HEADER ═══ */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(9,9,11,.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.05);padding:8px 16px;padding-top:calc(8px + var(--st));display:flex;align-items:center;gap:10px;}
+.hdr-logo{height:14px;opacity:.5;filter:brightness(0) invert(1);}
+.hdr-sep{width:1px;height:16px;background:var(--s4);}
+.hdr-t{font-family:var(--fd);font-size:12px;font-weight:600;color:var(--t3);letter-spacing:.1em;text-transform:uppercase;}
+.hdr-spacer{flex:1;}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:var(--red);transition:.3s;}
+.hdr-dot.on{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.4);}
+.hdr-badge{font-family:var(--fm);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;color:var(--t4);background:var(--s3);}
+.hdr-badge.rdy{color:#fff;background:var(--green);box-shadow:0 0 16px rgba(34,197,94,.25);}
+
+/* ═══ KW HERO ═══ */
+.hero{padding:20px 16px 12px;background:linear-gradient(180deg,var(--s1),var(--s0));}
+.hero-row{display:flex;align-items:flex-end;gap:14px;margin-bottom:12px;}
+.hero-kw{font-family:var(--fd);font-size:52px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-.04em;}
+.hero-meta{flex:1;}
+.hero-label{font-family:var(--fm);font-size:8px;color:var(--t4);text-transform:uppercase;letter-spacing:2px;}
+.hero-date{font-family:var(--fm);font-size:10px;color:var(--t4);margin-top:2px;}
+.hero-ctrls{display:flex;gap:8px;}
+.hero-input{font-family:var(--fb);font-size:13px;padding:10px 12px;border:1px solid var(--s4);border-radius:var(--r);background:var(--s2);color:var(--t1);flex:1;min-width:0;-webkit-appearance:none;}
+.hero-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-s);}
+
+/* ═══ STATS ═══ */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;padding:0 16px 16px;}
+.st{background:var(--s1);padding:10px 8px;border-radius:var(--r);text-align:center;}
+.st-v{font-family:var(--fd);font-size:20px;font-weight:800;letter-spacing:-.02em;}
+.st-v .u{font-size:12px;font-weight:500;color:var(--t3);}
+.st-l{font-family:var(--fm);font-size:7px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-top:2px;}
+.st-bar{width:100%;height:2px;background:var(--s3);border-radius:1px;margin-top:5px;overflow:hidden;}
+.st-bar div{height:100%;border-radius:1px;transition:width .5s var(--ease);}
+
+/* ═══ ENTRY ═══ */
+.entries{padding:0 16px;}
+.entry{background:var(--s1);border:1px solid var(--s3);border-radius:var(--rl);margin-bottom:10px;overflow:hidden;opacity:0;transform:translateY(8px);animation:eIn .3s var(--ease) forwards;}
+@keyframes eIn{to{opacity:1;transform:translateY(0)}}
+.e-hd{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--s2);-webkit-tap-highlight-color:transparent;cursor:pointer;}
+.e-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:12px;font-weight:700;color:#fff;background:var(--accent);flex-shrink:0;}
+.e-num.g{background:var(--sg)}.e-num.m{background:var(--sm)}.e-num.s{background:var(--ss)}
+.e-nfo{flex:1;min-width:0;}
+.e-ttl{font-family:var(--fd);font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.e-sub{font-family:var(--fm);font-size:10px;color:var(--t4);display:flex;gap:6px;align-items:center;margin-top:1px;}
+.e-sub .pill{padding:1px 6px;border-radius:10px;font-size:8px;font-weight:700;color:#fff;text-transform:uppercase;}
+.e-ring{width:30px;height:30px;position:relative;flex-shrink:0;}
+.e-ring svg{transform:rotate(-90deg);}
+.e-ring-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:8px;font-weight:700;color:var(--t3);}
+.e-arr{background:none;border:none;color:var(--t4);font-size:16px;padding:4px;transition:transform .2s;}
+.e-arr.open{transform:rotate(180deg);}
+
+.e-bd{max-height:0;overflow:hidden;transition:max-height .3s var(--ease);}
+.e-bd.open{max-height:1200px;}
+
+/* Photos */
+.photos{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--s3);}
+.ph{position:relative;aspect-ratio:4/3;background:var(--s2);overflow:hidden;display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;}
+.ph:active{opacity:.85;}
+.ph.has img{width:100%;height:100%;object-fit:cover;}
+.ph-lbl{position:absolute;top:6px;left:8px;font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;z-index:2;}
+.ph.has .ph-lbl{color:rgba(255,255,255,.5);text-shadow:0 1px 3px rgba(0,0,0,.7);}
+.ph-empty{display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.18;}
+.ph-empty-i{font-size:28px;}
+.ph-empty-t{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--t3);}
+.ph-rm{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;display:none;align-items:center;justify-content:center;z-index:3;backdrop-filter:blur(4px);}
+.ph.has .ph-rm{display:flex;}
+.ph input[type=file]{display:none;}
+
+/* Form */
+.e-form{padding:12px;display:flex;flex-direction:column;gap:8px;}
+.fi{display:flex;flex-direction:column;gap:3px;}
+.fi>label{font-family:var(--fm);font-size:8px;font-weight:600;color:var(--t4);text-transform:uppercase;letter-spacing:2px;}
+.fi select,.fi input,.fi textarea{font-family:var(--fb);font-size:15px;padding:10px 12px;border:1px solid var(--s4);border-radius:var(--r);background:var(--s2);color:var(--t1);width:100%;-webkit-appearance:none;}
+.fi select:focus,.fi input:focus,.fi textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-s);}
+.fi textarea{resize:none;min-height:56px;}
+.fi-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fi input[readonly]{color:var(--t4);background:var(--s3);}
+
+/* Entry footer */
+.e-ft{padding:8px 12px;border-top:1px solid var(--s3);display:flex;gap:6px;}
+.e-btn{font-family:var(--fb);font-size:12px;font-weight:600;padding:8px 14px;border:1px solid var(--s4);border-radius:var(--r);background:var(--s2);color:var(--t2);flex:1;text-align:center;-webkit-tap-highlight-color:transparent;}
+.e-btn:active{background:var(--s4);}
+.e-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
+.e-btn.primary:active{opacity:.85;}
+.e-btn.danger{color:var(--red);border-color:var(--red-s);}
+
+/* ═══ BOTTOM NAV ═══ */
+.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(15,15,18,.94);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,.05);padding:4px 8px;padding-bottom:calc(4px + var(--sb));display:flex;align-items:center;}
+.bn{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 4px;border:none;background:none;color:var(--t4);-webkit-tap-highlight-color:transparent;font-family:var(--fb);}
+.bn:active{opacity:.6;}
+.bn.act{color:var(--accent);}
+.bn-i{font-size:20px;height:24px;display:flex;align-items:center;justify-content:center;}
+.bn-l{font-size:9px;font-weight:600;letter-spacing:.3px;}
+.fab{width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:28px;font-weight:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(232,112,10,.4);margin:-14px 4px 0;flex-shrink:0;-webkit-tap-highlight-color:transparent;transition:transform .15s var(--spring);}
+.fab:active{transform:scale(.9);}
+
+/* ═══ PANELS ═══ */
+.p-ov{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);display:none;backdrop-filter:blur(4px);}
+.p-ov.show{display:block;}
+.panel{position:fixed;bottom:0;left:0;right:0;z-index:301;background:var(--s1);border-radius:var(--rx) var(--rx) 0 0;max-height:85dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s var(--ease);padding-bottom:calc(16px + var(--sb));}
+.panel.show{transform:translateY(0);}
+.p-handle{width:36px;height:4px;background:var(--s5);border-radius:2px;margin:10px auto 0;}
+.p-head{padding:16px 20px 12px;border-bottom:1px solid var(--s3);}
+.p-title{font-family:var(--fd);font-size:17px;font-weight:700;}
+.p-sub{font-size:12px;color:var(--t3);margin-top:2px;}
+.p-body{padding:16px 20px;}
+.p-btn{width:100%;padding:14px;border:none;border-radius:var(--r);font-family:var(--fb);font-size:14px;font-weight:700;margin-bottom:8px;display:flex;align-items:center;justify-content:center;gap:8px;-webkit-tap-highlight-color:transparent;}
+.p-btn:active{transform:scale(.98);}
+.p-btn:disabled{opacity:.3;}
+.p-btn-a{background:var(--accent);color:#fff;box-shadow:0 4px 16px rgba(232,112,10,.25);}
+.p-btn-g{background:var(--s3);color:var(--t2);}
+.p-btn-gr{background:var(--green);color:#fff;}
+.p-fi{margin-bottom:12px;}
+.p-fi label{display:block;font-family:var(--fm);font-size:9px;color:var(--t4);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:4px;}
+.p-fi input,.p-fi textarea{width:100%;font-family:var(--fb);font-size:14px;padding:10px 12px;border:1px solid var(--s4);border-radius:var(--r);background:var(--s2);color:var(--t1);}
+.p-fi input:focus,.p-fi textarea:focus{outline:none;border-color:var(--accent);}
+
+/* ═══ LIGHTBOX ═══ */
+.lb{position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.96);display:none;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent;padding:12px;}
+.lb.show{display:flex;}
+.lb img{max-width:100%;max-height:82dvh;object-fit:contain;border-radius:var(--r);animation:lbIn .2s var(--spring);}
+@keyframes lbIn{from{opacity:0;transform:scale(.95)}}
+.lb-x{position:absolute;top:calc(12px + var(--st));right:12px;background:rgba(255,255,255,.08);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.lb-l{position:absolute;bottom:calc(16px + var(--sb));left:50%;transform:translateX(-50%);font-family:var(--fd);font-size:12px;color:rgba(255,255,255,.35);background:rgba(255,255,255,.06);padding:6px 16px;border-radius:var(--r);backdrop-filter:blur(8px);white-space:nowrap;}
+
+/* ═══ EMPTY ═══ */
+.empty{text-align:center;padding:60px 24px;opacity:0;animation:eIn .4s var(--ease) .2s forwards;}
+.empty-i{font-size:44px;margin-bottom:12px;opacity:.12;}
+.empty-t{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--t2);margin-bottom:6px;}
+.empty-s{font-size:13px;color:var(--t4);line-height:1.7;}
+
+/* ═══ TOAST ═══ */
+.toast{position:fixed;top:calc(12px + var(--st));left:16px;right:16px;background:var(--s2);color:var(--t1);padding:12px 16px;border-radius:var(--r);font-size:13px;font-weight:600;opacity:0;transform:translateY(-20px);transition:all .3s var(--spring);z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.5);border:1px solid var(--s4);text-align:center;}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ═══ LOADING ═══ */
+.lo{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;backdrop-filter:blur(6px);}
+.lo.show{display:flex;}
+.lo .sp{width:28px;height:28px;border:2px solid var(--s5);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lo .msg{color:var(--t2);font-size:13px;font-family:var(--fd);}
+
+.confetti{position:fixed;inset:0;z-index:800;pointer-events:none;}
+
+@media(min-width:768px){.entries{max-width:600px;margin:0 auto;}.stats{max-width:600px;margin:0 auto 16px;}.hero{max-width:600px;margin:0 auto;padding-left:0;padding-right:0;}}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <img src="icon-512.png" style="width:80px;border-radius:18px;" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/b/b3/Fondium_Logo.svg';this.style.filter='brightness(0) invert(1)';this.style.borderRadius='0';this.style.width='120px';">
+  <div class="stxt">Leckage Dokumentation</div>
+  <div class="sbar"><div></div></div>
+</div>
+
+<div class="hdr">
+  <img src="https://upload.wikimedia.org/wikipedia/commons/b/b3/Fondium_Logo.svg" class="hdr-logo" onerror="this.style.display='none'">
+  <div class="hdr-sep"></div>
+  <div class="hdr-t">Leckage</div>
+  <div class="hdr-spacer"></div>
+  <div class="hdr-dot" id="dot"></div>
+  <div class="hdr-badge" id="badge">0/5</div>
+</div>
+
+<div class="hero">
+  <div class="hero-row">
+    <div>
+      <div class="hero-label">Kalenderwoche</div>
+      <div class="hero-kw" id="kwBig">—</div>
+    </div>
+    <div class="hero-meta">
+      <div class="hero-date" id="kwDate">—</div>
+    </div>
+  </div>
+  <div class="hero-ctrls">
+    <input type="week" id="kwPicker" class="hero-input" onchange="updateKW()">
+    <select id="dept" class="hero-input">
+      <option>Kernmacherei</option>
+      <option>Formanlage AM409</option>
+      <option>Formanlage IML</option>
+      <option>Formanlage AMR</option>
+      <option>Modellfertigung</option>
+      <option>Bearbeitung</option>
+    </select>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="st"><div class="st-v" id="sC">0<span class="u">/5</span></div><div class="st-l">Erfasst</div><div class="st-bar"><div id="sCB" style="width:0;background:var(--accent)"></div></div></div>
+  <div class="st"><div class="st-v" id="sK">0<span class="u">%</span></div><div class="st-l">Komplett</div><div class="st-bar"><div id="sKB" style="width:0;background:var(--green)"></div></div></div>
+  <div class="st"><div class="st-v" id="sP">0</div><div class="st-l">Fotos</div><div class="st-bar"><div id="sPB" style="width:0;background:var(--amber)"></div></div></div>
+  <div class="st"><div class="st-v" id="sS">—</div><div class="st-l">Stärke</div></div>
+</div>
+
+<div class="entries" id="list"></div>
+<div class="empty" id="empty">
+  <div class="empty-i">📸</div>
+  <div class="empty-t">Bereit zur Dokumentation</div>
+  <div class="empty-s">Tippe ＋ um eine Leckage zu erfassen<br>Fotos direkt mit der Kamera aufnehmen</div>
+</div>
+
+<div class="bnav">
+  <button class="bn act" onclick="loadSP()"><div class="bn-i">🔄</div><div class="bn-l">Laden</div></button>
+  <button class="bn" onclick="openP('report')"><div class="bn-i">📄</div><div class="bn-l">Bericht</div></button>
+  <button class="fab" onclick="addE()">＋</button>
+  <button class="bn" onclick="syncSP()"><div class="bn-i">☁</div><div class="bn-l">Sync</div></button>
+  <button class="bn" onclick="openP('more')"><div class="bn-i">⚙</div><div class="bn-l">Mehr</div></button>
+</div>
+
+<!-- Report Panel -->
+<div class="p-ov" id="reportOv" onclick="closeP('report')"></div>
+<div class="panel" id="reportP">
+  <div class="p-handle"></div>
+  <div class="p-head"><div class="p-title">📄 Bericht</div><div class="p-sub" id="rSub">0 Leckagen</div></div>
+  <div class="p-body">
+    <button class="p-btn p-btn-a" onclick="exportPDF()">↓ PDF herunterladen</button>
+    <button class="p-btn p-btn-g" onclick="exportCSV()">↓ CSV Maßnahmenliste</button>
+    <div style="height:8px"></div>
+    <div class="p-fi"><label>Empfänger</label><input id="rEmail" type="email" placeholder="email@fondium.eu" value="tim.hamann@fondium.eu"></div>
+    <button class="p-btn p-btn-gr" onclick="sendMail()">✉ Bericht senden</button>
+  </div>
+</div>
+
+<!-- More Panel -->
+<div class="p-ov" id="moreOv" onclick="closeP('more')"></div>
+<div class="panel" id="moreP">
+  <div class="p-handle"></div>
+  <div class="p-head"><div class="p-title">⚙ Einstellungen</div></div>
+  <div class="p-body">
+    <button class="p-btn p-btn-g" onclick="syncSP()">☁ Nach SharePoint synchronisieren</button>
+    <button class="p-btn p-btn-g" onclick="loadSP()">↓ Aus SharePoint laden</button>
+    <button class="p-btn p-btn-g" onclick="document.getElementById('bulkIn').click()">⚡ Fotos importieren</button>
+    <input type="file" id="bulkIn" multiple accept="image/*,.heic,.heif" style="display:none" onchange="bulkImport(this)">
+    <button class="p-btn p-btn-g" style="color:var(--red)" onclick="if(confirm('Alle löschen?')){clearAll();closeP('more');}">✕ Alles löschen</button>
+    
+    <div style="margin-top:20px;padding:14px;background:var(--s2);border-radius:var(--r);border:1px solid var(--s4);">
+      <div style="font-family:var(--fm);font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:10px;">☁ SharePoint-Verbindung</div>
+      <div class="p-fi"><label>Flow-URL: Laden</label><input id="cfgLoad" type="url" placeholder="https://...workflows/.../invoke?api-version=..." style="font-size:11px;"></div>
+      <div class="p-fi"><label>Flow-URL: Speichern</label><input id="cfgSave" type="url" placeholder="https://...workflows/.../invoke?api-version=..." style="font-size:11px;"></div>
+      <button class="p-btn p-btn-a" style="font-size:12px;padding:10px;" onclick="saveFlowConfig()">URLs speichern & testen</button>
+      <div id="spSt" style="margin-top:8px;font-size:11px;color:var(--t4);">Nicht konfiguriert</div>
+    </div>
+    
+    <div style="margin-top:12px;padding:12px;background:var(--s2);border-radius:var(--r);font-size:11px;color:var(--t4);">
+      FONDIUM Leckage PWA v17.3<br>
+      <span style="font-size:10px;">URLs werden nur auf diesem Gerät gespeichert.</span>
+    </div>
+  </div>
+</div>
+
+<div class="lb" id="lb" onclick="closeLb()"><img id="lbI"><button class="lb-x" onclick="closeLb()">✕</button><div class="lb-l" id="lbL"></div></div>
+<div class="toast" id="toast"></div>
+<div class="lo" id="lo"><div class="sp"></div><div class="msg" id="loM"></div></div>
+<canvas class="confetti" id="cf"></canvas>
+
+<script>
+// ═══ CONFIG ═══
+var E=[],ec=0,logo=null,celeb=false,openId=null;
+var SC={gering:'#eab308',mittel:'#f97316',stark:'#ef4444'},SL={gering:'Gering',mittel:'Mittel',stark:'Stark'};
+
+// ═══ PWA SERVICE WORKER ═══
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(function(e){console.log('SW:',e);});}
+
+// ═══ SPLASH ═══
+setTimeout(function(){var s=document.getElementById('splash');s.classList.add('hide');setTimeout(function(){s.style.display='none';},500);},1800);
+
+// ═══ LOGO ═══
+(function(){var i=new Image();i.crossOrigin='anonymous';i.onload=function(){var c=document.createElement('canvas');c.width=i.naturalWidth||787;c.height=i.naturalHeight||167;c.getContext('2d').drawImage(i,0,0,c.width,c.height);try{logo=c.toDataURL('image/png');}catch(e){}};i.src='https://upload.wikimedia.org/wikipedia/commons/b/b3/Fondium_Logo.svg';})();
+
+// ═══ KW ═══
+(function(){var n=new Date(),j=new Date(n.getFullYear(),0,1),d=Math.floor((n-j)/864e5),w=Math.ceil((d+j.getDay()+1)/7);document.getElementById('kwPicker').value=n.getFullYear()+'-W'+String(w).padStart(2,'0');updateKW();})();
+function updateKW(){var v=document.getElementById('kwPicker').value;if(!v)return;var p=v.split('-W'),y=+p[0],w=+p[1];document.getElementById('kwBig').textContent=w;var j4=new Date(y,0,4),dow=j4.getDay()||7,mon=new Date(j4);mon.setDate(j4.getDate()-dow+1+(w-1)*7);var sun=new Date(mon);sun.setDate(mon.getDate()+6);var f=function(d){return d.toLocaleDateString('de-DE',{day:'2-digit',month:'short'});};document.getElementById('kwDate').textContent=f(mon)+' – '+f(sun)+' '+y;}
+function getKW(){var v=document.getElementById('kwPicker').value;return v?+v.split('-W')[1]:0;}
+function getKWY(){var v=document.getElementById('kwPicker').value;return v?+v.split('-W')[0]:new Date().getFullYear();}
+function getDept(){return document.getElementById('dept').value;}
+function kwFolder(){return'KW'+getKW()+'_'+getKWY();}
+
+// ═══ POWER AUTOMATE API ═══
+var FLOW={load:'',save:'',ok:false};
+
+async function loadFlowConfig(){
+  try{
+    if(!db)await openDB();
+    var tx=db.transaction('data','readonly'),st=tx.objectStore('data');
+    var gL=st.get('flow_load'),gS=st.get('flow_save');
+    await new Promise(function(r){tx.oncomplete=r;});
+    if(gL.result)FLOW.load=gL.result;
+    if(gS.result)FLOW.save=gS.result;
+    // Populate settings fields if they exist
+    if($('cfgLoad'))$('cfgLoad').value=FLOW.load;
+    if($('cfgSave'))$('cfgSave').value=FLOW.save;
+  }catch(e){console.error('Config load error:',e);}
+}
+
+async function saveFlowConfig(){
+  var loadUrl=$('cfgLoad').value.trim();
+  var saveUrl=$('cfgSave').value.trim();
+  if(!loadUrl||!saveUrl){toast('Beide URLs eingeben');return;}
+  try{
+    if(!db)await openDB();
+    var tx=db.transaction('data','readwrite'),st=tx.objectStore('data');
+    st.put(loadUrl,'flow_load');
+    st.put(saveUrl,'flow_save');
+    await new Promise(function(r,j){tx.oncomplete=r;tx.onerror=j;});
+    FLOW.load=loadUrl;
+    FLOW.save=saveUrl;
+    toast('URLs gespeichert — teste Verbindung…');
+    await spCheck();
+  }catch(e){toast('Speicherfehler: '+e.message);}
+}
+
+async function flowCall(url,body){
+  if(!url)throw new Error('Flow-URL nicht konfiguriert');
+  var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok)throw new Error('Flow Fehler: '+r.status);
+  return await r.json();
+}
+
+async function spCheck(){
+  if(!FLOW.load){
+    FLOW.ok=false;$('dot').classList.remove('on');
+    $('spSt').textContent='⚠ Flow-URLs nicht konfiguriert';
+    $('spSt').style.color='var(--amber)';
+    return false;
+  }
+  try{
+    var r=await fetch(FLOW.load,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dateFrom:'2026-01-01',dateTo:'2026-01-01'})});
+    if(r.ok){FLOW.ok=true;$('dot').classList.add('on');$('spSt').textContent='✓ Verbunden mit SharePoint';$('spSt').style.color='var(--green)';return true;}
+  }catch(e){}
+  FLOW.ok=false;$('dot').classList.remove('on');$('spSt').textContent='✗ Verbindung fehlgeschlagen';$('spSt').style.color='var(--red)';return false;
+}
+
+// ═══ LOAD FROM SHAREPOINT ═══
+async function loadSP(){
+  if(!FLOW.load){toast('⚙ Erst Flow-URLs in Einstellungen eingeben');openP('more');return;}
+  showL('Lade aus SharePoint…');
+  try{
+    var kw=getKW(),y=getKWY(),j4=new Date(y,0,4),dow=j4.getDay()||7,mon=new Date(j4);
+    mon.setDate(j4.getDate()-dow+1+(kw-1)*7);
+    var sun=new Date(mon);sun.setDate(mon.getDate()+6);
+    var data=await flowCall(FLOW.load,{dateFrom:mon.toISOString().split('T')[0],dateTo:sun.toISOString().split('T')[0]});
+    var items=data.value||[];
+    E=items.map(function(it){
+      return{
+        id:'sp'+it.ID,spId:it.ID,
+        ort:it.Ort||'',
+        strength:it.Kategorie?(it.Kategorie.Value||'').toLowerCase():'',
+        freitext:it.Bemerkung||'',
+        datum:it.Datum?it.Datum.split('T')[0]:'',
+        uhrzeit:'',
+        abt:it.Abteilung?(it.Abteilung.Value||getDept()):getDept(),
+        imgT:it.FotoTotale||null,
+        imgD:it.FotoDetail||null,
+        status:it.Status?(it.Status.Value||'Offen'):'Offen'
+      };
+    });
+    ec=E.length;openId=null;render();autoSave();
+    FLOW.ok=true;$('dot').classList.add('on');
+    hideL();toast(E.length+' Leckagen geladen ✓');
+  }catch(e){
+    console.error('Load error:',e);
+    hideL();toast('Laden fehlgeschlagen — offline');
+    FLOW.ok=false;$('dot').classList.remove('on');
+  }
+}
+
+// ═══ SAVE ENTRY TO SHAREPOINT ═══
+async function saveSP(e){
+  if(!FLOW.save){toast('⚙ Erst Flow-URLs in Einstellungen eingeben');openP('more');return;}
+  showL('Speichere nach SharePoint…');
+  try{
+    // Prepare base64 without data:image prefix for the flow
+    var fotoT='',fotoD='';
+    if(e.imgT&&e.imgT.startsWith('data:')){
+      fotoT=e.imgT.split(',')[1]||'';
+    }
+    if(e.imgD&&e.imgD.startsWith('data:')){
+      fotoD=e.imgD.split(',')[1]||'';
+    }
+    var body={
+      action:e.spId?'update':'create',
+      itemId:e.spId||0,
+      titel:e.ort||'Leckage',
+      datum:e.datum||new Date().toISOString().split('T')[0],
+      ort:e.ort||'',
+      kategorie:SL[e.strength]||'',
+      abteilung:e.abt||getDept(),
+      bemerkung:e.freitext||'',
+      fotoTotalBase64:fotoT,
+      fotoDetailBase64:fotoD,
+      ordner:kwFolder()
+    };
+    var result=await flowCall(FLOW.save,body);
+    if(result.itemId){
+      e.spId=result.itemId;
+      // Clear base64 data after successful upload to save local space
+      if(fotoT)e.imgT='☁ SharePoint';
+      if(fotoD)e.imgD='☁ SharePoint';
+    }
+    FLOW.ok=true;$('dot').classList.add('on');
+    hideL();toast('In SharePoint gespeichert ✓');
+  }catch(err){
+    console.error('Save error:',err);
+    hideL();toast('Upload fehlgeschlagen — lokal gespeichert');
+    FLOW.ok=false;$('dot').classList.remove('on');
+  }
+}
+
+// ═══ SYNC ALL TO SHAREPOINT ═══
+async function syncSP(){
+  if(!FLOW.save){toast('⚙ Erst Flow-URLs in Einstellungen eingeben');openP('more');return;}
+  var unsaved=E.filter(function(e){return !e.spId;});
+  if(!unsaved.length){toast('Alles bereits synchronisiert');closeP('more');return;}
+  showL('Sync…');
+  var ok=0,fail=0;
+  for(var i=0;i<unsaved.length;i++){
+    $('loM').textContent='Sync '+(i+1)+'/'+unsaved.length+'…';
+    try{await saveSP(unsaved[i]);ok++;}catch(e){fail++;}
+  }
+  hideL();
+  toast(ok+' synchronisiert'+(fail?' ('+fail+' fehlgeschlagen)':''));
+  autoSave();
+  closeP('more');
+}
+
+// ═══ MODEL ═══
+function newE(){return{id:'l'+(++ec),spId:null,ort:'',strength:'',freitext:'',datum:'',uhrzeit:'',abt:'',imgT:null,imgD:null,status:'Offen'};}
+function comp(e){var d=0;if(e.ort)d++;if(e.strength)d++;if(e.freitext)d++;if(e.imgT)d++;if(e.imgD)d++;return Math.round(d/5*100);}
+
+// ═══ STATS ═══
+function upStats(){
+  var c=E.length;$('sC').innerHTML=c+'<span class="u">/5</span>';$('sCB').style.width=Math.min(100,c/5*100)+'%';
+  var tc=0;E.forEach(function(e){tc+=comp(e);});var avg=c?Math.round(tc/c):0;
+  $('sK').innerHTML=avg+'<span class="u">%</span>';$('sKB').style.width=avg+'%';
+  var ph=0;E.forEach(function(e){if(e.imgT)ph++;if(e.imgD)ph++;});$('sP').textContent=ph;$('sPB').style.width=(c?ph/(c*2)*100:0)+'%';
+  var g=0,m=0,s=0;E.forEach(function(e){if(e.strength==='gering')g++;else if(e.strength==='mittel')m++;else if(e.strength==='stark')s++;});
+  $('sS').innerHTML='<span style="color:var(--sg)">'+g+'</span> <span style="color:var(--sm)">'+m+'</span> <span style="color:var(--ss)">'+s+'</span>';
+  var b=$('badge');b.textContent=c+'/5';b.className='hdr-badge'+(c>=5?' rdy':'');
+  $('empty').style.display=c?'none':'block';
+  $('rSub').textContent=c+' Leckagen — KW '+getKW();
+  if(c>=5&&avg>=80&&!celeb){celeb=true;celebrate();}if(c<5)celeb=false;
+}
+
+function celebrate(){toast('✨ Dokumentation vollständig!');var cv=$('cf');cv.width=innerWidth;cv.height=innerHeight;var ctx=cv.getContext('2d'),ps=[],cols=['#E8700A','#22c55e','#eab308','#3b82f6','#ef4444','#fff'];for(var i=0;i<80;i++)ps.push({x:cv.width/2,y:cv.height*.5,vx:(Math.random()-.5)*12,vy:Math.random()*-14-5,sz:Math.random()*5+2,c:cols[~~(Math.random()*6)],life:1,dec:.008+Math.random()*.01,rot:Math.random()*360,rv:(Math.random()-.5)*10});var t0=Date.now();(function a(){if(Date.now()-t0>2500){ctx.clearRect(0,0,cv.width,cv.height);return;}ctx.clearRect(0,0,cv.width,cv.height);ps.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.28;p.life-=p.dec;p.rot+=p.rv;if(p.life>0){ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot*Math.PI/180);ctx.globalAlpha=p.life;ctx.fillStyle=p.c;ctx.fillRect(-p.sz/2,-p.sz/2,p.sz,p.sz*.6);ctx.restore();}});requestAnimationFrame(a);})();}
+
+// ═══ IMAGE ═══
+async function procFile(f){if(f.name.toLowerCase().match(/\.(heic|heif)$/)){try{var b=await heic2any({blob:f,toType:'image/jpeg',quality:.85});return Array.isArray(b)?b[0]:b;}catch(e){}}return f;}
+function readDU(b){return new Promise(function(r,j){var f=new FileReader();f.onload=function(){r(f.result);};f.onerror=j;f.readAsDataURL(b);});}
+
+// ═══ RENDER ═══
+function addE(){var e=newE();e.abt=getDept();var n=new Date();e.datum=n.toISOString().split('T')[0];e.uhrzeit=n.toTimeString().substring(0,5);E.unshift(e);openId=e.id;render();autoSave();setTimeout(function(){var el=document.querySelector('.entry');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});},80);}
+function rmE(id){if(!confirm('Löschen?'))return;E=E.filter(function(e){return e.id!==id;});if(openId===id)openId=null;render();autoSave();}
+
+function render(){
+  var l=$('list');l.innerHTML='';
+  for(var i=0;i<E.length;i++){var el=bldE(E[i],i);el.style.animationDelay=i*.03+'s';l.appendChild(el);}
+  upStats();
+}
+
+function bldE(e,i){
+  var d=document.createElement('div');d.className='entry';d.dataset.id=e.id;
+  var c=comp(e),t=e.ort||'Neue Leckage',ds='';
+  if(e.datum){var dp=e.datum.split('-');ds=dp[2]+'.'+dp[1]+'.'+dp[0];}
+  var nc='e-num'+(e.strength==='gering'?' g':e.strength==='mittel'?' m':e.strength==='stark'?' s':'');
+  var pill=e.strength?'<span class="pill" style="background:'+SC[e.strength]+'">'+SL[e.strength]+'</span>':'';
+  var isO=openId===e.id,rc=c>=100?'var(--green)':c>=60?'var(--accent)':'var(--red)';
+  var r=12,circ=2*Math.PI*r,off=circ-(c/100)*circ;
+  d.innerHTML='<div class="e-hd" onclick="togE(\''+e.id+'\')"><div class="'+nc+'">'+(i+1)+'</div><div class="e-nfo"><div class="e-ttl">'+esc(t)+'</div><div class="e-sub">'+ds+' '+pill+'</div></div><div class="e-ring"><svg width="30" height="30"><circle cx="15" cy="15" r="'+r+'" fill="none" stroke="var(--s4)" stroke-width="2.5"/><circle cx="15" cy="15" r="'+r+'" fill="none" stroke="'+rc+'" stroke-width="2.5" stroke-dasharray="'+circ+'" stroke-dashoffset="'+off+'" stroke-linecap="round"/></svg><div class="e-ring-t">'+c+'</div></div><button class="e-arr'+(isO?' open':'')+'">▾</button></div>'+
+  '<div class="e-bd'+(isO?' open':'')+'"><div class="photos">'+phCol(e,'total','Totale','📷')+phCol(e,'detail','Detail','🔍')+'</div><div class="e-form">'+
+  '<div class="fi"><label>Ort</label><input type="text" value="'+esc(e.ort)+'" placeholder="Maschine, Station…" onchange="upF(\''+e.id+'\',\'ort\',this.value)"></div>'+
+  '<div class="fi"><label>Stärke</label><select onchange="upF(\''+e.id+'\',\'strength\',this.value)"><option value="">— wählen —</option><option value="gering"'+(e.strength==='gering'?' selected':'')+'>🟡 Gering</option><option value="mittel"'+(e.strength==='mittel'?' selected':'')+'>🟠 Mittel</option><option value="stark"'+(e.strength==='stark'?' selected':'')+'>🔴 Stark</option></select></div>'+
+  '<div class="fi"><label>Beschreibung</label><textarea placeholder="Kupplung undicht…" onchange="upF(\''+e.id+'\',\'freitext\',this.value)">'+esc(e.freitext)+'</textarea></div>'+
+  '<div class="fi-row"><div class="fi"><label>Datum</label><input type="date" value="'+e.datum+'" onchange="upF(\''+e.id+'\',\'datum\',this.value)"></div><div class="fi"><label>Abteilung</label><input type="text" value="'+esc(e.abt)+'" readonly></div></div></div>'+
+  '<div class="e-ft"><button class="e-btn primary" onclick="saveSP(E.find(function(x){return x.id===\''+e.id+'\'}))">☁ Nach SharePoint</button><button class="e-btn" onclick="event.preventDefault();">'+(e.spId?'✓ SP #'+e.spId:'● Lokal')+'</button><button class="e-btn danger" onclick="rmE(\''+e.id+'\')">✕</button></div></div>';
+  return d;
+}
+
+function phCol(e,slot,lbl,ico){
+  var pfx=slot==='total'?'tot':'det',src=slot==='total'?e.imgT:e.imgD;
+  var has=!!src;
+  var isCloud=has&&!src.startsWith('data:');
+  var imgSrc=isCloud?'':src;
+  return'<div class="ph'+(has?' has':'')+'" id="ph_'+pfx+'_'+e.id+'" onclick="'+(has&&!isCloud?'openLb(\''+e.id+'\',\''+slot+'\')':'trigPh(\''+e.id+'\',\''+slot+'\')')+'"><div class="ph-lbl">'+lbl+(isCloud?' ☁':'')+'</div>'+(has?(isCloud?'<div class="ph-empty" style="opacity:.4"><div class="ph-empty-i">☁</div><div class="ph-empty-t">In SharePoint</div></div>':'<img src="'+imgSrc+'"><button class="ph-rm" onclick="event.stopPropagation();rmI(\''+e.id+'\',\''+slot+'\')">✕</button>'):'<div class="ph-empty"><div class="ph-empty-i">'+ico+'</div><div class="ph-empty-t">Foto aufnehmen</div></div>')+'<input type="file" accept="image/*" capture="environment" onchange="hPh(this,\''+e.id+'\',\''+slot+'\')"></div>';
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+// ═══ INTERACTIONS ═══
+function togE(id){openId=openId===id?null:id;render();}
+function upF(id,f,v){var e=E.find(function(x){return x.id===id;});if(e){e[f]=v;upStats();autoSave();}}
+function trigPh(id,slot){var pfx=slot==='total'?'tot':'det';document.querySelector('#ph_'+pfx+'_'+id+' input[type=file]').click();}
+async function hPh(inp,id,slot){if(!inp.files||!inp.files[0])return;showL('Foto…');try{var b=await procFile(inp.files[0]);var u=await readDU(b);var c=await compressPhoto(u,1200,0.75);var e=E.find(function(x){return x.id===id;});if(slot==='total')e.imgT=c;else e.imgD=c;render();autoSave();}catch(er){toast('Fehler');}hideL();inp.value='';}
+function compressPhoto(dataUrl,maxPx,quality){return new Promise(function(res){var img=new Image();img.onload=function(){var w=img.naturalWidth,h=img.naturalHeight;if(w>maxPx||h>maxPx){if(w>h){h=Math.round(h*(maxPx/w));w=maxPx;}else{w=Math.round(w*(maxPx/h));h=maxPx;}}var c=document.createElement('canvas');c.width=w;c.height=h;var ctx=c.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);ctx.drawImage(img,0,0,w,h);res(c.toDataURL('image/jpeg',quality));};img.onerror=function(){res(dataUrl);};img.src=dataUrl;});}
+function rmI(id,slot){var e=E.find(function(x){return x.id===id;});if(slot==='total')e.imgT=null;else e.imgD=null;render();autoSave();}
+
+// ═══ LIGHTBOX ═══
+function openLb(id,slot){var e=E.find(function(x){return x.id===id;});var s=slot==='total'?e.imgT:e.imgD;if(!s)return;$('lbI').src=s;$('lbL').textContent=(e.ort||'Leckage')+' — '+slot;$('lb').classList.add('show');}
+function closeLb(){$('lb').classList.remove('show');}
+
+// ═══ PANELS ═══
+function openP(n){$(n+'Ov').classList.add('show');$(n+'P').classList.add('show');}
+function closeP(n){$(n+'Ov').classList.remove('show');$(n+'P').classList.remove('show');}
+
+// ═══ PDF ═══
+function gDim(u){return new Promise(function(r){var i=new Image();i.onload=function(){r({w:i.naturalWidth,h:i.naturalHeight});};i.onerror=function(){r({w:4,h:3});};i.src=u;});}
+function fImg(iw,ih,bw,bh){var ir=iw/ih,br=bw/bh;return ir>br?{w:bw,h:bw/ir}:{w:bh*ir,h:bh};}
+function cImg(du,mx,q){return new Promise(function(r){var i=new Image();i.onload=function(){var w=i.naturalWidth,h=i.naturalHeight;if(w>mx||h>mx){if(w>h){h=Math.round(h*(mx/w));w=mx;}else{w=Math.round(w*(mx/h));h=mx;}}var c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(i,0,0,w,h);r(c.toDataURL('image/jpeg',q));};i.onerror=function(){r(du);};i.src=du;});}
+
+async function genPDF(){
+  var pdf=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'}),W=210,H=297,mx=12,dept=getDept(),kn=getKW(),ky=getKWY(),dr=$('kwDate').textContent;
+  var lpp=5,pages=Math.ceil(E.length/lpp),ci={};
+  for(var i=0;i<E.length;i++){var ce=E[i];if(ce.imgT&&ce.imgT.startsWith('data:'))ci[ce.id+'t']=await cImg(ce.imgT,900,.55);if(ce.imgD&&ce.imgD.startsWith('data:'))ci[ce.id+'d']=await cImg(ce.imgD,900,.55);}
+  var cG=2,cW=W-2*mx,iW=54,iCW=(cW-iW-cG*2)/2;
+  for(var p=0;p<pages;p++){
+    if(p>0)pdf.addPage();var y=10;
+    if(logo)pdf.addImage(logo,'PNG',mx,y,37.7,8);
+    pdf.setFont('helvetica','bold');pdf.setFontSize(11);pdf.setTextColor(30);pdf.text('Wöchentlicher Druckluftleckagenbericht',W-mx,y+4,{align:'right'});
+    y+=11;pdf.setDrawColor(232,112,10);pdf.setLineWidth(.6);pdf.line(mx,y,W-mx,y);y+=5;
+    pdf.setFont('helvetica','normal');pdf.setFontSize(8);pdf.setTextColor(80);pdf.text('Abteilung: '+dept,mx,y);pdf.text('KW '+kn+' / '+ky+'  |  '+dr,W-mx,y,{align:'right'});y+=3;
+    pdf.setFontSize(7);pdf.setTextColor(130);pdf.text('Seite '+(p+1)+'/'+pages+'  |  '+new Date().toLocaleDateString('de-DE')+'  |  Intern',mx,y);y+=5;
+    var si=p*lpp,ei=Math.min(si+lpp,E.length),rc=ei-si,rG=2.5,rH=Math.min(48,(H-y-10-(rc-1)*rG)/lpp);
+    for(var i=si;i<ei;i++){
+      var e=E[i],li=i-si,ry=y+li*(rH+rG),sC=e.strength==='stark'?[211,47,47]:e.strength==='mittel'?[224,123,32]:[232,168,23],hS=!!e.strength;
+      pdf.setFillColor(255,255,255);pdf.roundedRect(mx,ry,iW,rH,1.5,1.5,'F');pdf.setDrawColor(220);pdf.setLineWidth(.2);pdf.roundedRect(mx,ry,iW,rH,1.5,1.5,'S');
+      var hB=7;pdf.setFillColor(30,30,34);pdf.roundedRect(mx,ry,iW,hB+1.5,1.5,1.5,'F');pdf.rect(mx,ry+hB-1,iW,2.5,'F');
+      var cx=mx+5.5,cy=ry+hB/2;pdf.setFillColor(hS?sC[0]:232,hS?sC[1]:112,hS?sC[2]:10);pdf.circle(cx,cy,2.8,'F');
+      pdf.setFont('helvetica','bold');pdf.setFontSize(7);pdf.setTextColor(255,255,255);pdf.text(''+(i+1),cx,cy+.9,{align:'center'});
+      pdf.setFontSize(7.5);pdf.text('Leckage '+(i+1),cx+5,cy+1);
+      if(hS){var pl=SL[e.strength],pw=pdf.getTextWidth(pl)+5,px=mx+iW-pw-3;pdf.setFillColor(sC[0],sC[1],sC[2]);pdf.roundedRect(px,cy-2,pw,4,1.5,1.5,'F');pdf.setFontSize(5.5);pdf.text(pl,px+pw/2,cy+.8,{align:'center'});}
+      var bX=mx+4,bY=ry+hB+5,bM=iW-8;pdf.setFont('helvetica','bold');pdf.setFontSize(6);pdf.setTextColor(170);pdf.text('ORT',bX,bY);
+      pdf.setFont('helvetica','normal');pdf.setFontSize(7);pdf.setTextColor(40);var oL=pdf.splitTextToSize(e.ort||'–',bM);if(oL.length>2)oL=oL.slice(0,2);pdf.text(oL,bX,bY+3);bY+=3+oL.length*3+1;
+      pdf.setDrawColor(230);pdf.setLineWidth(.1);pdf.line(bX,bY,bX+bM,bY);bY+=2.5;
+      if(e.datum){var dp=e.datum.split('-');pdf.setFont('helvetica','bold');pdf.setFontSize(5.5);pdf.setTextColor(170);pdf.text('DATUM',bX,bY);pdf.setFont('helvetica','normal');pdf.setFontSize(6.5);pdf.setTextColor(50);pdf.text(dp[2]+'.'+dp[1]+'.'+dp[0],bX+14,bY);bY+=3.8;}
+      if(e.abt){pdf.setFont('helvetica','bold');pdf.setFontSize(5.5);pdf.setTextColor(170);pdf.text('ABTLG.',bX,bY);pdf.setFont('helvetica','normal');pdf.setFontSize(6.5);pdf.setTextColor(50);pdf.text(e.abt,bX+14,bY);bY+=3.8;}
+      if(e.freitext){pdf.setDrawColor(230);pdf.line(bX,bY-.5,bX+bM,bY-.5);bY+=2;pdf.setFont('helvetica','italic');pdf.setFontSize(5.5);pdf.setTextColor(90);var mL=Math.max(1,~~((ry+rH-bY-2)/2.5)),fL=pdf.splitTextToSize(e.freitext,bM);if(fL.length>mL){fL=fL.slice(0,mL);fL[fL.length-1]=fL[fL.length-1].slice(0,-2)+'…';}pdf.text(fL,bX,bY+1.5);}
+      // Images
+      var x1=mx+iW+cG;pdf.setFillColor(235,235,237);pdf.roundedRect(x1,ry,iCW,rH,1.5,1.5,'F');
+      if(e.imgT&&e.imgT.startsWith('data:')){try{var ct=ci[e.id+'t']||e.imgT,dt=await gDim(ct),ft=fImg(dt.w,dt.h,iCW,rH);pdf.addImage(ct,'JPEG',x1+(iCW-ft.w)/2,ry+(rH-ft.h)/2,ft.w,ft.h,undefined,'FAST');}catch(er){}}
+      var lW=15,lH=4.5;pdf.setFillColor(30,30,34);pdf.roundedRect(x1+2,ry+rH-lH-1.5,lW,lH,1,1,'F');pdf.setFont('helvetica','bold');pdf.setFontSize(5.5);pdf.setTextColor(255,255,255);pdf.text('TOTAL',x1+2+lW/2,ry+rH-lH-1.5+lH/2+.8,{align:'center'});
+      if(!e.imgT){pdf.setFont('helvetica','normal');pdf.setFontSize(6);pdf.setTextColor(190);pdf.text('Totalaufnahme',x1+iCW/2,ry+rH/2,{align:'center'});}
+      var x2=x1+iCW+cG;pdf.setFillColor(235,235,237);pdf.roundedRect(x2,ry,iCW,rH,1.5,1.5,'F');
+      if(e.imgD&&e.imgD.startsWith('data:')){try{var cd=ci[e.id+'d']||e.imgD,dd=await gDim(cd),fd=fImg(dd.w,dd.h,iCW,rH);pdf.addImage(cd,'JPEG',x2+(iCW-fd.w)/2,ry+(rH-fd.h)/2,fd.w,fd.h,undefined,'FAST');}catch(er){}}
+      pdf.setFillColor(30,30,34);pdf.roundedRect(x2+2,ry+rH-lH-1.5,lW,lH,1,1,'F');pdf.setFont('helvetica','bold');pdf.setFontSize(5.5);pdf.setTextColor(255,255,255);pdf.text('DETAIL',x2+2+lW/2,ry+rH-lH-1.5+lH/2+.8,{align:'center'});
+      if(!e.imgD){pdf.setFont('helvetica','normal');pdf.setFontSize(6);pdf.setTextColor(190);pdf.text('Detailaufnahme',x2+iCW/2,ry+rH/2,{align:'center'});}
+    }
+    var fY=H-8;pdf.setDrawColor(210);pdf.setLineWidth(.15);pdf.line(mx,fY-2,W-mx,fY-2);pdf.setFontSize(6);pdf.setTextColor(140);pdf.text('Druckluftleckagenbericht – '+dept+' – KW'+kn+'_'+ky,mx,fY);pdf.text('Fondium Mettmann GmbH',W-mx,fY,{align:'right'});
+  }return pdf;
+}
+async function exportPDF(){if(!jspdf||!E.length){toast(E.length?'jsPDF fehlt':'Keine Leckagen');return;}showL('PDF…');setTimeout(async function(){try{(await genPDF()).save('Druckluftleckagen_KW'+getKW()+'_'+getKWY()+'_'+getDept().replace(/ /g,'_')+'.pdf');toast('PDF ✓');}catch(e){toast('Fehler');}hideL();},80);}
+function exportCSV(){if(!E.length){toast('Keine Leckagen');return;}var kn=getKW(),ky=getKWY(),d=getDept(),s=';',h=['Nr','KW','Datum','Abteilung','Ort','Stärke','Beschreibung','Maßnahme','Verantwortlich','Termin','Status'],rows=[h.join(s)];for(var i=0;i<E.length;i++){var e=E[i],df='';if(e.datum){var dp=e.datum.split('-');df=dp[2]+'.'+dp[1]+'.'+dp[0];}rows.push([i+1,'KW'+kn,df,e.abt||d,(e.ort||'').replace(/;/g,','),(SL[e.strength]||''),(e.freitext||'').replace(/;/g,','),'','','','offen'].join(s));}saveAs(new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8;'}),'Massnahmenliste_KW'+kn+'_'+ky+'.csv');toast('CSV ✓');closeP('report');}
+function sendMail(){var em=$('rEmail').value;if(!em){toast('E-Mail eingeben');return;}window.open('mailto:'+em+'?subject='+encodeURIComponent('Leckagenbericht KW'+getKW()+'/'+getKWY()+' – '+getDept()));toast('Mail-Client geöffnet');closeP('report');}
+
+// ═══ BULK IMPORT ═══
+function parseFN(n){var b=n.replace(/\.[^/.]+$/,''),l=b.toLowerCase(),ty=null;if(l.endsWith('_total')){ty='total';b=b.slice(0,-6);}else if(l.endsWith('_detail')){ty='detail';b=b.slice(0,-7);}else return null;var p=b.split('_'),ort=p[0]||'',str='',ft='',dat='',uhr='';if(p.length>=5){var di=-1;for(var i=0;i<p.length;i++)if(/^\d{4}-\d{2}-\d{2}$/.test(p[i])){di=i;break;}if(di>=0){dat=p[di];uhr=p[di+1]?(p[di+1]).replace(/-/g,':'):'';var ps=(p[1]||'').toLowerCase();if(['gering','mittel','stark'].includes(ps)){str=ps;ft=p.slice(2,di).join(' ');}else ft=p.slice(1,di).join(' ');}else{var ps=(p[1]||'').toLowerCase();if(['gering','mittel','stark'].includes(ps)){str=ps;ft=p.slice(2).join(' ');}else ft=p.slice(1).join(' ');}}return{ty,ort,strength:str,ft,dat,uhr,gk:ort+'|'+dat+'|'+uhr||b};}
+async function bulkImport(inp){if(!inp.files||!inp.files.length)return;showL('Import…');var gs={};for(var i=0;i<inp.files.length;i++){var f=inp.files[i],p=parseFN(f.name);if(!p)continue;if(!gs[p.gk])gs[p.gk]={ort:p.ort,strength:p.strength,ft:p.ft,dat:p.dat,uhr:p.uhr,tf:null,df:null};var g=gs[p.gk];if(p.ty==='total')g.tf=f;else g.df=f;}var cnt=0,dept=getDept();for(var k in gs){var g=gs[k],ne=newE();ne.ort=g.ort;ne.strength=g.strength;ne.freitext=g.ft;ne.datum=g.dat;ne.uhrzeit=g.uhr;ne.abt=dept;if(g.tf){var raw=await readDU(await procFile(g.tf));ne.imgT=await compressPhoto(raw,1200,0.75);}if(g.df){var raw=await readDU(await procFile(g.df));ne.imgD=await compressPhoto(raw,1200,0.75);}E.push(ne);cnt++;}render();hideL();inp.value='';toast(cnt+' importiert ⚡');autoSave();closeP('more');}
+
+// ═══ LOCAL STORAGE ═══
+// ═══ INDEXEDDB STORAGE (supports large photos) ═══
+var db=null,_saveTimer=null;
+function openDB(){return new Promise(function(res,rej){var req=indexedDB.open('FondiumLeckage',1);req.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains('data'))d.createObjectStore('data');};req.onsuccess=function(e){db=e.target.result;res(db);};req.onerror=function(){rej(req.error);};});}
+function autoSave(){clearTimeout(_saveTimer);_saveTimer=setTimeout(function(){_doSave(true);},400);}
+async function saveLocal(){await _doSave(false);}
+async function _doSave(silent){
+  try{
+    if(!db)await openDB();
+    var tx=db.transaction('data','readwrite'),st=tx.objectStore('data');
+    st.put(JSON.stringify(E),'entries');
+    st.put(ec,'counter');
+    st.put($('kwPicker').value,'kw');
+    await new Promise(function(r,j){tx.oncomplete=r;tx.onerror=j;});
+    if(!silent)toast('Gesichert ✓');
+  }catch(e){console.error('Save error:',e);if(!silent)toast('Speicherfehler: '+e.message);}
+}
+async function ldLocal(){
+  try{
+    if(!db)await openDB();
+    var tx=db.transaction('data','readonly'),st=tx.objectStore('data');
+    var gE=st.get('entries'),gC=st.get('counter'),gK=st.get('kw');
+    await new Promise(function(r){tx.oncomplete=r;});
+    if(gE.result){E=JSON.parse(gE.result);ec=gC.result||0;if(gK.result)$('kwPicker').value=gK.result;updateKW();render();}
+  }catch(e){console.error('Load error:',e);}
+}
+async function clearAll(){
+  E=[];ec=0;celeb=false;openId=null;
+  try{if(!db)await openDB();var tx=db.transaction('data','readwrite');tx.objectStore('data').clear();}catch(e){}
+  render();
+}
+
+// ═══ UTILS ═══
+function $(id){return document.getElementById(id);}
+function toast(m){var el=$('toast');el.textContent=m;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},3e3);}
+function showL(m){$('loM').textContent=m;$('lo').classList.add('show');}
+function hideL(){$('lo').classList.remove('show');}
+
+// ═══ INIT ═══
+(async function(){
+  await openDB();
+  await ldLocal();
+  await loadFlowConfig();
+  upStats();
+  var online=await spCheck();
+  if(online&&E.length===0) await loadSP();
+})();
+</script>
+</body>
+</html>
