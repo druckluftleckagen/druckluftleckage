@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fondium-leckage-v17.4';
+const CACHE_NAME = 'fondium-leckage-v17.5';
 const ASSETS = [
   './',
   './index.html',
