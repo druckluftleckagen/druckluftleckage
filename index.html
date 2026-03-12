@@ -293,7 +293,7 @@ body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;
     </div>
     
     <div style="margin-top:12px;padding:12px;background:var(--s2);border-radius:var(--r);font-size:11px;color:var(--t4);">
-      FONDIUM Leckage PWA v17.3<br>
+      FONDIUM Leckage PWA v17.5<br>
       <span style="font-size:10px;">URLs werden nur auf diesem Gerät gespeichert.</span>
     </div>
   </div>
@@ -597,9 +597,30 @@ async function genPDF(){
     var fY=H-8;pdf.setDrawColor(210);pdf.setLineWidth(.15);pdf.line(mx,fY-2,W-mx,fY-2);pdf.setFontSize(6);pdf.setTextColor(140);pdf.text('Druckluftleckagenbericht – '+dept+' – KW'+kn+'_'+ky,mx,fY);pdf.text('Fondium Mettmann GmbH',W-mx,fY,{align:'right'});
   }return pdf;
 }
-async function exportPDF(){if(!jspdf||!E.length){toast(E.length?'jsPDF fehlt':'Keine Leckagen');return;}showL('PDF…');setTimeout(async function(){try{(await genPDF()).save('Druckluftleckagen_KW'+getKW()+'_'+getKWY()+'_'+getDept().replace(/ /g,'_')+'.pdf');toast('PDF ✓');}catch(e){toast('Fehler');}hideL();},80);}
-function exportCSV(){if(!E.length){toast('Keine Leckagen');return;}var kn=getKW(),ky=getKWY(),d=getDept(),s=';',h=['Nr','KW','Datum','Abteilung','Ort','Stärke','Beschreibung','Maßnahme','Verantwortlich','Termin','Status'],rows=[h.join(s)];for(var i=0;i<E.length;i++){var e=E[i],df='';if(e.datum){var dp=e.datum.split('-');df=dp[2]+'.'+dp[1]+'.'+dp[0];}rows.push([i+1,'KW'+kn,df,e.abt||d,(e.ort||'').replace(/;/g,','),(SL[e.strength]||''),(e.freitext||'').replace(/;/g,','),'','','','offen'].join(s));}saveAs(new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8;'}),'Massnahmenliste_KW'+kn+'_'+ky+'.csv');toast('CSV ✓');closeP('report');}
-function sendMail(){var em=$('rEmail').value;if(!em){toast('E-Mail eingeben');return;}window.open('mailto:'+em+'?subject='+encodeURIComponent('Leckagenbericht KW'+getKW()+'/'+getKWY()+' – '+getDept()));toast('Mail-Client geöffnet');closeP('report');}
+async function exportPDF(){if(!jspdf||!E.length){toast(E.length?'jsPDF fehlt':'Keine Leckagen');return;}showL('PDF…');setTimeout(async function(){try{(await genPDF()).save(pdfName());toast('PDF ✓');}catch(e){toast('Fehler');}hideL();},80);}
+function exportCSV(){if(!E.length){toast('Keine Leckagen');return;}saveAs(csvBlob(),csvName());toast('CSV ✓');closeP('report');}
+function csvBlob(){var kn=getKW(),ky=getKWY(),d=getDept(),s=';',h=['Nr','KW','Datum','Abteilung','Ort','Stärke','Beschreibung','Maßnahme','Verantwortlich','Termin','Status'],rows=[h.join(s)];for(var i=0;i<E.length;i++){var e=E[i],df='';if(e.datum){var dp=e.datum.split('-');df=dp[2]+'.'+dp[1]+'.'+dp[0];}rows.push([i+1,'KW'+kn,df,e.abt||d,(e.ort||'').replace(/;/g,','),(SL[e.strength]||''),(e.freitext||'').replace(/;/g,','),'','','','offen'].join(s));}return new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8;'});}
+function pdfName(){return'Druckluftleckagen_KW'+getKW()+'_'+getKWY()+'_'+getDept().replace(/ /g,'_')+'.pdf';}
+function csvName(){return'Massnahmenliste_KW'+getKW()+'_'+getKWY()+'.csv';}
+async function sendMail(){
+  var em=$('rEmail').value;if(!em){toast('E-Mail eingeben');return;}
+  if(!E.length){toast('Keine Leckagen');return;}
+  showL('Erstelle Bericht…');closeP('report');
+  try{
+    await new Promise(function(r){setTimeout(r,80);});
+    var pdf=await genPDF(),pb=pdf.output('blob'),pf=new File([pb],pdfName(),{type:'application/pdf'});
+    var cb=csvBlob(),cf=new File([cb],csvName(),{type:'text/csv'});
+    var subj='Leckagenbericht KW'+getKW()+'/'+getKWY()+' – '+getDept();
+    var body='Druckluftleckagen-Bericht KW'+getKW()+' ('+getKWY()+'), '+getDept()+'.\n'+E.length+' Leckage(n) erfasst.\n\nPDF-Bericht und CSV-Maßnahmenliste im Anhang.';
+    hideL();
+    if(navigator.canShare&&navigator.canShare({files:[pf]})){
+      try{await navigator.share({title:subj,text:body,files:[pf,cf]});toast('Bericht geteilt ✓');return;}catch(se){if(se.name==='AbortError'){toast('Abgebrochen');return;}}
+    }
+    saveAs(pb,pdfName());setTimeout(function(){saveAs(cb,csvName());},400);
+    setTimeout(function(){window.open('mailto:'+encodeURIComponent(em)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body+'\n\n⚠ PDF + CSV wurden heruntergeladen — bitte manuell anhängen.'));},800);
+    toast('PDF + CSV heruntergeladen — an Mail anhängen');
+  }catch(e){hideL();toast('Fehler: '+e.message);console.error(e);}
+}
 
 // ═══ BULK IMPORT ═══
 function parseFN(n){var b=n.replace(/\.[^/.]+$/,''),l=b.toLowerCase(),ty=null;if(l.endsWith('_total')){ty='total';b=b.slice(0,-6);}else if(l.endsWith('_detail')){ty='detail';b=b.slice(0,-7);}else return null;var p=b.split('_'),ort=p[0]||'',str='',ft='',dat='',uhr='';if(p.length>=5){var di=-1;for(var i=0;i<p.length;i++)if(/^\d{4}-\d{2}-\d{2}$/.test(p[i])){di=i;break;}if(di>=0){dat=p[di];uhr=p[di+1]?(p[di+1]).replace(/-/g,':'):'';var ps=(p[1]||'').toLowerCase();if(['gering','mittel','stark'].includes(ps)){str=ps;ft=p.slice(2,di).join(' ');}else ft=p.slice(1,di).join(' ');}else{var ps=(p[1]||'').toLowerCase();if(['gering','mittel','stark'].includes(ps)){str=ps;ft=p.slice(2).join(' ');}else ft=p.slice(1).join(' ');}}return{ty,ort,strength:str,ft,dat,uhr,gk:ort+'|'+dat+'|'+uhr||b};}
